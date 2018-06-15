@@ -3,6 +3,18 @@ import sys
 
 import networkx as nx
 
-from . import nx_to_dot
+from . import (
+  dataflow_graph_to_dot_graph,
+  dataflow_graph_from_json_object,
+  nx_to_dot,
+)
 
-print(nx_to_dot(nx.json_graph.node_link_graph(json.load(sys.stdin))))
+print(
+  nx_to_dot(
+    dataflow_graph_to_dot_graph(
+      dataflow_graph_from_json_object(
+        json.load(sys.stdin)
+      )
+    )
+  )
+)

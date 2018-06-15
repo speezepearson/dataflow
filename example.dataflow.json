@@ -1,0 +1,13 @@
+{
+  "nodes": {
+    "a": {"type": "store"},
+    "b": {"type": "process"}
+  },
+  "transfers": {
+    "a": {
+      "b": {
+        "datatype": "foo"
+      }
+    }
+  }
+}
