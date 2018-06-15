@@ -20,9 +20,15 @@ def dataflow_graph_from_json_object(j: dict) -> DataflowGraph:
     result.add_node(id, type='process', **attrs)
 
   for (src, outgoingss) in j.get('transfers', {}).items():
+    if not result.has_node(src):
+      raise KeyError('edge found with source {!r}, which corresponds to no node'.format(src))
     for (dst, outgoings) in outgoingss.items():
+      if not result.has_node(dst):
+        raise KeyError('edge found with destination {!r}, which corresponds to no node'.format(dst))
       for attrs in outgoings:
         result.add_edge(src, dst, **attrs)
+
+  result.graph.update(j.get('attrs', {}))
 
   return result
 
@@ -36,4 +42,7 @@ def dataflow_graph_to_dot_graph(g: DataflowGraph) -> DotGraph:
   return DotGraph(result)
 
 def graph_to_dot(g: DotGraph) -> str:
-  return nx.nx_pydot.to_pydot(g).create_dot().decode()
+  pdg = nx.nx_pydot.to_pydot(g)
+  for k, v in g.graph.items():
+    pdg.set(k, v)
+  return pdg.create_dot().decode()
