@@ -1,13 +1,15 @@
 {
-  "nodes": {
-    "a": {"type": "store"},
-    "b": {"type": "process"}
+  "stores": {
+    "a": {}
+  },
+  "processes": {
+    "b": {}
   },
   "transfers": {
     "a": {
-      "b": {
-        "datatype": "foo"
-      }
+      "b": [
+        {"datatype": "foo"}
+      ]
     }
   }
 }
