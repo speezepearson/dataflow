@@ -1,0 +1,22 @@
+graphviz-attrs:
+  label: RabbitMQ Architecture
+  rankdir: LR
+
+stores:
+  queue:
+
+processes:
+  publisher:
+  consumer:
+  exchange:
+
+transfers:
+  publisher:
+    exchange:
+      - datatype: Message
+  exchange:
+    queue:
+      - datatype: Message
+  queue:
+    consumer:
+      - datatype: Message
