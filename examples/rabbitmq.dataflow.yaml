@@ -4,6 +4,7 @@ graphviz-attrs:
 
 stores:
   queue:
+    background-color: lightblue
 
 processes:
   publisher:
