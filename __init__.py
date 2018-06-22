@@ -15,8 +15,10 @@ def dataflow_graph_from_json_object(j: dict) -> DataflowGraph:
   if duplicate_node_ids:
     raise ValueError('node ids {} are given as both stores and values'.format(duplicate_node_ids))
   for (id, attrs) in j.get('stores', {}).items():
+    if attrs is None: attrs = {}
     result.add_node(id, type='store', **attrs)
   for (id, attrs) in j.get('processes', {}).items():
+    if attrs is None: attrs = {}
     result.add_node(id, type='process', **attrs)
 
   for (src, outgoingss) in j.get('transfers', {}).items():
@@ -32,13 +34,39 @@ def dataflow_graph_from_json_object(j: dict) -> DataflowGraph:
 
   return result
 
+def dataflow_to_cytoscape_json(g: DataflowGraph) -> dict:
+  cyto = nx.DiGraph()
+  for (id, attrs) in g.nodes.items():
+    style = dict(attrs.get('cytoscape-style', {}))
+    style.setdefault('label', attrs.get('label', attrs.get('datatype', id)))
+    style.setdefault('shape', 'octagon' if attrs['type'] == 'store' else 'ellipse')
+    style.setdefault('background-color', attrs.get('background-color', 'white'))
+    style.setdefault('border-color', attrs.get('border-color', 'black'))
+    style.setdefault('border-width', attrs.get('border-width', '1px'))
+    cyto.add_node(id, style=style)
+  for ((src, dst), attrs) in g.edges.items():
+    style = dict(attrs.get('cytoscape-style', {}))
+    style.setdefault('label', attrs.get('label', attrs.get('datatype', '')))
+    cyto.add_edge(src, dst, style=style)
+
+  result = nx.json_graph.cytoscape_data(cyto)['elements']
+  for x in result['nodes'] + result['edges']:
+    x['style'] = x['data'].pop('style')
+
+  return result
+
 def dataflow_graph_to_dot_graph(g: DataflowGraph) -> DotGraph:
-  result = copy.deepcopy(g)
-  for (id, attrs) in result.nodes.items():
-    if attrs['type'] == 'store':
-      result.nodes[id]['shape'] = 'cylinder'
-    if attrs.get('datatype'):
-      result.nodes[id].setdefault('label', attrs['datatype'])
+  result = nx.DiGraph()
+  for (id, attrs) in g.nodes.items():
+    g_attrs = dict(attrs.get('graphviz-style', {}))
+    g_attrs.setdefault('shape', 'cylinder' if attrs['type'] == 'store' else 'oval')
+    g_attrs.setdefault('label', attrs.get('label', attrs.get('datatype', id)))
+    result.add_node(id, **g_attrs)
+  for ((src, dst), attrs) in g.edges.items():
+    g_attrs = dict(attrs.get('graphviz-style', {}))
+    g_attrs.setdefault('label', attrs.get('label', attrs.get('datatype', '')))
+    result.add_edge(src, dst, **g_attrs)
+
   return DotGraph(result)
 
 def graph_to_dot(g: DotGraph) -> str:
