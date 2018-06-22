@@ -43,11 +43,11 @@ def dataflow_to_cytoscape_json(g: DataflowGraph) -> dict:
     style.setdefault('background-color', attrs.get('background-color', 'white'))
     style.setdefault('border-color', attrs.get('border-color', 'black'))
     style.setdefault('border-width', attrs.get('border-width', '1px'))
-    cyto.add_node(id, style=style)
+    cyto.add_node(id, style=style, **attrs)
   for ((src, dst), attrs) in g.edges.items():
     style = dict(attrs.get('cytoscape-style', {}))
     style.setdefault('label', attrs.get('label', attrs.get('datatype', '')))
-    cyto.add_edge(src, dst, style=style)
+    cyto.add_edge(src, dst, style=style, **attrs)
 
   result = nx.json_graph.cytoscape_data(cyto)['elements']
   for x in result['nodes'] + result['edges']:
